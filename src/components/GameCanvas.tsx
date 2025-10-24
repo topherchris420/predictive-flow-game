@@ -427,12 +427,17 @@ export const GameCanvas = () => {
       setIsPlaying(true);
       audioEngineRef.current?.resume();
       toast("Synchronization beginning...", { 
-        description: "Click, press Space, or use voice to anticipate" 
+        description: "Tap, press Space, or use voice to anticipate" 
       });
       return;
     }
     
     handleAnticipation();
+  };
+  
+  const handleCanvasTouch = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleCanvasClick();
   };
   
   return (
@@ -448,18 +453,19 @@ export const GameCanvas = () => {
       
       <canvas
         ref={canvasRef}
-        className="relative w-full h-full cursor-crosshair"
+        className="relative w-full h-full cursor-crosshair touch-none"
         onClick={handleCanvasClick}
+        onTouchStart={handleCanvasTouch}
       />
       
       {/* Controls */}
-      <div className="absolute top-8 right-8 flex gap-3">
+      <div className="absolute top-4 md:top-8 right-4 md:right-8 flex gap-2 md:gap-3">
         <MicrophoneInput 
           onVoiceAnticipation={handleAnticipation}
           isEnabled={micEnabled}
           onToggle={() => setMicEnabled(!micEnabled)}
         />
-        <div className="backdrop-blur-sm bg-card/50 border border-primary/30 rounded-lg px-3 py-2 flex items-center gap-2">
+        <div className="hidden sm:flex backdrop-blur-sm bg-card/50 border border-primary/30 rounded-lg px-3 py-2 items-center gap-2">
           <Keyboard className="h-4 w-4 text-primary" />
           <span className="text-sm text-muted-foreground">SPACE</span>
         </div>
@@ -467,9 +473,9 @@ export const GameCanvas = () => {
       
       {/* Flow State Indicator */}
       {flowState && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2">
-          <div className="backdrop-blur-md bg-primary/20 border-2 border-primary rounded-full px-8 py-3 glow-cyan animate-pulse-glow">
-            <div className="text-xl font-bold text-primary tracking-widest">
+        <div className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2">
+          <div className="backdrop-blur-md bg-primary/20 border-2 border-primary rounded-full px-4 py-2 md:px-8 md:py-3 glow-cyan animate-pulse-glow">
+            <div className="text-sm md:text-xl font-bold text-primary tracking-widest">
               ⟡ FLOW STATE ⟡
             </div>
           </div>
@@ -477,55 +483,55 @@ export const GameCanvas = () => {
       )}
       
       {/* HUD */}
-      <div className="absolute top-8 left-8 space-y-4">
-        <div className="backdrop-blur-sm bg-card/50 border border-primary/30 rounded-lg p-4 glow-cyan">
-          <div className="text-sm text-muted-foreground">PREDICTIVE FIELD</div>
-          <div className="text-3xl font-bold text-primary">{predictiveField}%</div>
+      <div className="absolute top-4 md:top-8 left-4 md:left-8 space-y-2 md:space-y-4">
+        <div className="backdrop-blur-sm bg-card/50 border border-primary/30 rounded-lg p-2 md:p-4 glow-cyan">
+          <div className="text-xs md:text-sm text-muted-foreground">PREDICTIVE FIELD</div>
+          <div className="text-xl md:text-3xl font-bold text-primary">{predictiveField}%</div>
         </div>
         
-        <div className="backdrop-blur-sm bg-card/50 border border-secondary/30 rounded-lg p-4 glow-magenta">
-          <div className="text-sm text-muted-foreground">SYNC RATE</div>
-          <div className="text-3xl font-bold text-secondary">{Math.round(syncRate * 100)}%</div>
+        <div className="backdrop-blur-sm bg-card/50 border border-secondary/30 rounded-lg p-2 md:p-4 glow-magenta">
+          <div className="text-xs md:text-sm text-muted-foreground">SYNC RATE</div>
+          <div className="text-xl md:text-3xl font-bold text-secondary">{Math.round(syncRate * 100)}%</div>
         </div>
         
-        <div className="backdrop-blur-sm bg-card/50 border border-accent/30 rounded-lg p-4 glow-purple">
-          <div className="text-sm text-muted-foreground">RESONANCE</div>
-          <div className="text-3xl font-bold text-accent">{score}</div>
+        <div className="backdrop-blur-sm bg-card/50 border border-accent/30 rounded-lg p-2 md:p-4 glow-purple">
+          <div className="text-xs md:text-sm text-muted-foreground">RESONANCE</div>
+          <div className="text-xl md:text-3xl font-bold text-accent">{score}</div>
         </div>
         
-        <div className="backdrop-blur-sm bg-card/50 border border-foreground/20 rounded-lg p-4">
-          <div className="text-sm text-muted-foreground">STREAK</div>
-          <div className="text-3xl font-bold text-foreground">{consecutiveHits}</div>
+        <div className="backdrop-blur-sm bg-card/50 border border-foreground/20 rounded-lg p-2 md:p-4">
+          <div className="text-xs md:text-sm text-muted-foreground">STREAK</div>
+          <div className="text-xl md:text-3xl font-bold text-foreground">{consecutiveHits}</div>
         </div>
       </div>
       
       {/* Instructions */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="backdrop-blur-md bg-card/70 border border-primary rounded-xl p-8 max-w-md glow-cyan pointer-events-auto">
-            <h2 className="text-2xl font-bold text-primary mb-4">PREDICTIVE</h2>
-            <p className="text-foreground/80 mb-4">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
+          <div className="backdrop-blur-md bg-card/70 border border-primary rounded-xl p-4 md:p-8 max-w-md w-full glow-cyan pointer-events-auto">
+            <h2 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4">PREDICTIVE</h2>
+            <p className="text-sm md:text-base text-foreground/80 mb-3 md:mb-4">
               Anticipate the pulse before it arrives at the center. Don't react — predict.
             </p>
-            <div className="space-y-3 mb-6 text-sm text-muted-foreground">
+            <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 text-xs md:text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary"></div>
-                <span>Click, press SPACE, or use voice</span>
+                <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+                <span>Tap, press SPACE, or use voice</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                <div className="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></div>
                 <span>System learns your rhythm patterns</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-accent"></div>
+                <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0"></div>
                 <span>Reach flow state through synchronization</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-4 italic">
+            <p className="text-xs text-muted-foreground mb-3 md:mb-4 italic">
               Wrong timing creates feedback echoes that shift the pattern
             </p>
-            <div className="mt-6 text-center">
-              <span className="text-accent animate-pulse-glow">Click anywhere to begin</span>
+            <div className="mt-4 md:mt-6 text-center">
+              <span className="text-sm md:text-base text-accent animate-pulse-glow">Tap anywhere to begin</span>
             </div>
           </div>
         </div>
