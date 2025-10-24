@@ -1,73 +1,34 @@
-# Welcome to your Lovable project
+# Quantum Scrambling Simulator
 
-## Project info
+An interactive web app from Vers3Dynamics that demonstrating the fascinating concepts of Quantum Information Scrambling in Non-Hermitian Systems. This simulator provides a visual and interactive way to explore cutting-edge physics, including Non-Hermitian Out-of-Time-Ordered Correlators (OTOCs), the visualization of Exceptional Points, and mock AI-driven optimization of quantum circuits.
 
-**URL**: https://lovable.dev/projects/1901c6f4-15d0-4f96-a049-71fb2fcbfda4
+## Core Concepts Explored
 
-## How can I edit this code?
+This simulator is built around several key concepts from modern quantum physics:
 
-There are several ways of editing your application.
+*   **Quantum Information Scrambling:** The process by which local information spreads throughout a complex quantum system, becoming inaccessible locally but preserved globally. It's a key indicator of quantum chaos.
+*   **Non-Hermitian Systems:** Quantum systems that exchange energy with their environment (i.e., they have gain or loss). They exhibit unique phenomena not found in closed, energy-conserving (Hermitian) systems.
+*   **Out-of-Time-Ordered Correlator (OTOC):** A key measure used to quantify quantum chaos and information scrambling. In this simulator, a faster decrease in the OTOC value signifies more rapid scrambling.
+*   **Exceptional Points (EPs):** Special points in the parameter space of a non-Hermitian system where its energy levels (eigenvalues) and corresponding states coalesce. They are singularities with profound physical consequences.
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1901c6f4-15d0-4f96-a049-71fb2fcbfda4) and start prompting.
+The application is divided into several interactive tabs, each showcasing a different aspect of the simulated system.
 
-Changes made via Lovable will be committed automatically to this repo.
+*   **Interactive System Controls:**
+    *   Adjust the **Non-Hermitian Strength (γ)** to control the amount of energy gain/loss.
+    *   Modify the **Circuit Depth (Time)** to see how the system evolves over longer periods.
 
-**Use your preferred IDE**
+*   **NH-OTOC Visualization:**
+    *   A real-time plot showing the OTOC value as it evolves over the circuit depth. Observe how scrambling is affected by the system parameters.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+*   **Exceptional Point Visualization:**
+    *   A scatter plot on the complex plane showing the trajectory of the system's energy levels (eigenvalues) as you vary the non-Hermitian strength `γ`.
+    *   Watch as the eigenvalues move, meet, and coalesce at the Exceptional Point.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+*   **RL Optimizer (Mock AI):**
+    *   Simulates a Reinforcement Learning agent searching for the optimal circuit parameters (`γ` and `depth`) that maximize information scrambling (i.e., achieve the lowest final OTOC value).
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/1901c6f4-15d0-4f96-a049-71fb2fcbfda4) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+*   **Non-Hermitian Parameter Estimator:**
+    *   An interactive challenge where you must deduce the hidden `γ` parameter of a mystery system by matching its OTOC data curve with your own.
+    *   Includes a mock "Solve with AI" button for an instant solution.
