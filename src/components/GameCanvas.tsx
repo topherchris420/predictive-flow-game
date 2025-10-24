@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useAudioEngine } from './AudioEngine';
+import { MicrophoneInput } from './MicrophoneInput';
+import { CymaticPattern } from './CymaticPattern';
+import { drawFeedbackEchoes } from './FeedbackEcho';
+import { Keyboard } from 'lucide-react';
 
 interface Pulse {
   x: number;
@@ -17,18 +22,32 @@ interface PredictiveField {
   timestamp: number;
 }
 
+interface FeedbackEcho {
+  x: number;
+  y: number;
+  timestamp: number;
+  radius: number;
+}
+
 export const GameCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [syncRate, setSyncRate] = useState(0);
   const [predictiveField, setPredictiveField] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [micEnabled, setMicEnabled] = useState(false);
+  const [showHints, setShowHints] = useState(true);
+  const [flowState, setFlowState] = useState(false);
+  const [consecutiveHits, setConsecutiveHits] = useState(0);
   
   const pulsesRef = useRef<Pulse[]>([]);
   const fieldsRef = useRef<PredictiveField[]>([]);
+  const echoesRef = useRef<FeedbackEcho[]>([]);
   const animationRef = useRef<number>();
   const lastPulseRef = useRef<number>(0);
   const anticipationWindowRef = useRef<number>(500); // ms before pulse arrives
+  const audioEngineRef = useAudioEngine();
+  const playerRhythmRef = useRef<number[]>([]); // Track player's timing pattern
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -67,6 +86,19 @@ export const GameCanvas = () => {
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
       }
+    };
+    
+    // Draw feedback echoes (for mistimed inputs)
+    const drawEchoes = () => {
+      const now = Date.now();
+      echoesRef.current = echoesRef.current.filter(echo => (now - echo.timestamp) < 3000);
+      
+      drawFeedbackEchoes({
+        echoes: echoesRef.current,
+        ctx,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height
+      });
     };
     
     // Draw predictive fields
@@ -142,6 +174,18 @@ export const GameCanvas = () => {
         ctx.arc(x, y, pulse.radius * (1 + Math.sin(progress * Math.PI * 4) * 0.2), 0, Math.PI * 2);
         ctx.fill();
         
+        // Draw hint ripples for approaching pulses (gradually fade with experience)
+        if (pulse.phase === 'approaching' && showHints) {
+          const hintAlpha = (0.3 - syncRate * 0.25) * (1 - progress);
+          ctx.strokeStyle = `hsla(190, 100%, 55%, ${hintAlpha})`;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.arc(x, y, pulse.radius * 1.5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        
         // Draw connecting line to center
         if (pulse.phase === 'critical') {
           ctx.strokeStyle = color;
@@ -165,14 +209,22 @@ export const GameCanvas = () => {
       const centerY = canvas.height / 2;
       const baseRadius = 30 + predictiveField * 2;
       
-      // Outer pulsing field
+      // Outer pulsing field (more intense in flow state)
       const fieldGradient = ctx.createRadialGradient(
         centerX, centerY, 0,
-        centerX, centerY, baseRadius * 3
+        centerX, centerY, baseRadius * (flowState ? 4 : 3)
       );
-      fieldGradient.addColorStop(0, `hsla(190, 100%, 55%, ${0.4 + syncRate * 0.3})`);
-      fieldGradient.addColorStop(0.5, `hsla(280, 90%, 65%, ${0.2 + syncRate * 0.2})`);
-      fieldGradient.addColorStop(1, 'hsla(310, 80%, 60%, 0)');
+      
+      if (flowState) {
+        fieldGradient.addColorStop(0, `hsla(190, 100%, 65%, ${0.6})`);
+        fieldGradient.addColorStop(0.3, `hsla(280, 90%, 65%, ${0.4})`);
+        fieldGradient.addColorStop(0.6, `hsla(310, 80%, 60%, ${0.2})`);
+        fieldGradient.addColorStop(1, 'hsla(190, 100%, 55%, 0)');
+      } else {
+        fieldGradient.addColorStop(0, `hsla(190, 100%, 55%, ${0.4 + syncRate * 0.3})`);
+        fieldGradient.addColorStop(0.5, `hsla(280, 90%, 65%, ${0.2 + syncRate * 0.2})`);
+        fieldGradient.addColorStop(1, 'hsla(310, 80%, 60%, 0)');
+      }
       
       ctx.fillStyle = fieldGradient;
       ctx.beginPath();
@@ -197,6 +249,7 @@ export const GameCanvas = () => {
     // Main animation loop
     const animate = () => {
       drawNeuralBackground();
+      drawEchoes();
       drawPredictiveFields();
       drawPulses();
       drawCenterNode();
@@ -212,9 +265,36 @@ export const GameCanvas = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [predictiveField, syncRate]);
+  }, [predictiveField, syncRate, flowState, showHints]);
   
-  // Spawn pulses
+  // Update audio based on sync rate
+  useEffect(() => {
+    if (isPlaying && audioEngineRef.current) {
+      audioEngineRef.current.updateSyncRate(syncRate);
+      audioEngineRef.current.playAmbientDrone();
+    }
+  }, [syncRate, isPlaying]);
+  
+  // Detect flow state
+  useEffect(() => {
+    if (consecutiveHits >= 10 && syncRate > 0.7 && !flowState) {
+      setFlowState(true);
+      audioEngineRef.current?.playFlowStateHarmony();
+      toast("FLOW STATE ACHIEVED", { 
+        description: "You are synchronized with the pattern",
+        duration: 5000
+      });
+    } else if (consecutiveHits < 5 && flowState) {
+      setFlowState(false);
+    }
+    
+    // Gradually hide hints as player improves
+    if (syncRate > 0.5 && showHints) {
+      setTimeout(() => setShowHints(false), 3000);
+    }
+  }, [consecutiveHits, syncRate, flowState, showHints]);
+  
+  // Spawn pulses with adaptive timing
   useEffect(() => {
     if (!isPlaying) return;
     
@@ -222,8 +302,16 @@ export const GameCanvas = () => {
       const now = Date.now();
       const timeSinceLastPulse = now - lastPulseRef.current;
       
-      // Adaptive timing based on sync rate
-      const baseInterval = 3000;
+      // Learn from player's rhythm
+      let predictedInterval = 3000;
+      if (playerRhythmRef.current.length >= 3) {
+        const recentRhythms = playerRhythmRef.current.slice(-5);
+        const avgInterval = recentRhythms.reduce((a, b) => a + b, 0) / recentRhythms.length;
+        predictedInterval = avgInterval * 0.7 + 3000 * 0.3; // Blend with base
+      }
+      
+      // Adaptive timing based on sync rate and flow state
+      const baseInterval = flowState ? predictedInterval * 0.8 : predictedInterval;
       const adaptiveInterval = baseInterval - (syncRate * 500);
       
       if (timeSinceLastPulse > adaptiveInterval) {
@@ -242,18 +330,37 @@ export const GameCanvas = () => {
     };
     
     spawnPulse();
-  }, [isPlaying, syncRate]);
+  }, [isPlaying, syncRate, flowState]);
   
-  const handleCanvasClick = () => {
-    if (!isPlaying) {
-      setIsPlaying(true);
-      toast("Synchronization beginning...", { description: "Anticipate before the pulse arrives" });
-      return;
-    }
+  // Keyboard controls
+  useEffect(() => {
+    if (!isPlaying) return;
     
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        handleAnticipation();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isPlaying]);
+  
+  const handleAnticipation = useCallback(() => {
+    audioEngineRef.current?.resume();
     const now = Date.now();
     const canvas = canvasRef.current;
     if (!canvas) return;
+    
+    // Record timing for rhythm learning
+    if (lastPulseRef.current > 0) {
+      const timeSinceLastPulse = now - lastPulseRef.current;
+      playerRhythmRef.current.push(timeSinceLastPulse);
+      if (playerRhythmRef.current.length > 10) {
+        playerRhythmRef.current.shift();
+      }
+    }
     
     // Check if any pulses are in critical phase
     let bestAnticipation = Infinity;
@@ -275,6 +382,10 @@ export const GameCanvas = () => {
       setScore(prev => prev + points);
       setSyncRate(prev => Math.min(1, prev + 0.1));
       setPredictiveField(prev => Math.min(100, prev + 5));
+      setConsecutiveHits(prev => prev + 1);
+      
+      // Play audio feedback
+      audioEngineRef.current?.playPulseSound(accuracy);
       
       // Create visual field
       fieldsRef.current.push({
@@ -294,19 +405,76 @@ export const GameCanvas = () => {
         toast("Anticipated", { description: `+${points} points` });
       }
     } else {
-      // Missed or too early
-      setSyncRate(prev => Math.max(0, prev - 0.05));
-      toast("Recalibrating...", { description: "Feel the rhythm" });
+      // Missed or too early - create feedback echo instead of penalty
+      setSyncRate(prev => Math.max(0, prev - 0.02)); // Smaller penalty
+      setConsecutiveHits(0);
+      
+      // Create feedback echo
+      echoesRef.current.push({
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        radius: 40,
+        timestamp: now
+      });
+      
+      audioEngineRef.current?.playFeedbackEcho();
+      toast("Feedback Echo", { description: "The pattern shifts..." });
     }
+  }, [flowState]);
+  
+  const handleCanvasClick = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+      audioEngineRef.current?.resume();
+      toast("Synchronization beginning...", { 
+        description: "Click, press Space, or use voice to anticipate" 
+      });
+      return;
+    }
+    
+    handleAnticipation();
   };
   
   return (
     <div className="relative w-full h-full">
+      {/* Cymatic background pattern */}
+      <div className="absolute inset-0">
+        <CymaticPattern 
+          intensity={predictiveField / 100}
+          syncRate={syncRate}
+          flowState={flowState}
+        />
+      </div>
+      
       <canvas
         ref={canvasRef}
-        className="w-full h-full cursor-crosshair"
+        className="relative w-full h-full cursor-crosshair"
         onClick={handleCanvasClick}
       />
+      
+      {/* Controls */}
+      <div className="absolute top-8 right-8 flex gap-3">
+        <MicrophoneInput 
+          onVoiceAnticipation={handleAnticipation}
+          isEnabled={micEnabled}
+          onToggle={() => setMicEnabled(!micEnabled)}
+        />
+        <div className="backdrop-blur-sm bg-card/50 border border-primary/30 rounded-lg px-3 py-2 flex items-center gap-2">
+          <Keyboard className="h-4 w-4 text-primary" />
+          <span className="text-sm text-muted-foreground">SPACE</span>
+        </div>
+      </div>
+      
+      {/* Flow State Indicator */}
+      {flowState && (
+        <div className="absolute top-8 left-1/2 -translate-x-1/2">
+          <div className="backdrop-blur-md bg-primary/20 border-2 border-primary rounded-full px-8 py-3 glow-cyan animate-pulse-glow">
+            <div className="text-xl font-bold text-primary tracking-widest">
+              ⟡ FLOW STATE ⟡
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* HUD */}
       <div className="absolute top-8 left-8 space-y-4">
@@ -324,6 +492,11 @@ export const GameCanvas = () => {
           <div className="text-sm text-muted-foreground">RESONANCE</div>
           <div className="text-3xl font-bold text-accent">{score}</div>
         </div>
+        
+        <div className="backdrop-blur-sm bg-card/50 border border-foreground/20 rounded-lg p-4">
+          <div className="text-sm text-muted-foreground">STREAK</div>
+          <div className="text-3xl font-bold text-foreground">{consecutiveHits}</div>
+        </div>
       </div>
       
       {/* Instructions */}
@@ -331,12 +504,25 @@ export const GameCanvas = () => {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="backdrop-blur-md bg-card/70 border border-primary rounded-xl p-8 max-w-md glow-cyan pointer-events-auto">
             <h2 className="text-2xl font-bold text-primary mb-4">PREDICTIVE</h2>
-            <p className="text-foreground/80 mb-6">
-              Anticipate the pulse before it arrives at the center. Don't react — predict. 
-              Click when you feel the moment approaching.
+            <p className="text-foreground/80 mb-4">
+              Anticipate the pulse before it arrives at the center. Don't react — predict.
             </p>
-            <p className="text-sm text-muted-foreground">
-              The system adapts to your rhythm. Find the flow.
+            <div className="space-y-3 mb-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary"></div>
+                <span>Click, press SPACE, or use voice</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                <span>System learns your rhythm patterns</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-accent"></div>
+                <span>Reach flow state through synchronization</span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4 italic">
+              Wrong timing creates feedback echoes that shift the pattern
             </p>
             <div className="mt-6 text-center">
               <span className="text-accent animate-pulse-glow">Click anywhere to begin</span>
