@@ -1,11 +1,22 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { GameCanvas } from '@/components/GameCanvas';
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="relative w-screen h-screen overflow-hidden bg-background">
+      {/* Main Game Canvas */}
+      <GameCanvas />
+      
+      {/* Vers3Dynamics Branding */}
+      <div className="absolute bottom-8 right-8 text-right">
+        <div className="text-sm text-muted-foreground tracking-wider">VERS3DYNAMICS</div>
+        <div className="text-xs text-muted-foreground/50">PREDICTIVE ANTICIPATORY ACTIVITY</div>
+      </div>
+      
+      {/* Tagline */}
+      <div className="absolute bottom-8 left-8">
+        <div className="text-lg font-light text-foreground/60 tracking-wide">
+          Don't react. <span className="text-primary">Anticipate.</span>
+        </div>
       </div>
     </div>
   );
