@@ -1,5 +1,5 @@
-# 🧠 PREDICTIVE
-### A Game About Knowing Before It Happens
+# 🧠 PREDICTIVE Game
+### An Arcade About Knowing Before It Happens
 
 > _"Don’t react. Anticipate."_
 
