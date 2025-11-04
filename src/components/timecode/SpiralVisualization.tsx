@@ -132,13 +132,13 @@ export function SpiralVisualization({ resonantDates, seedDate }: SpiralVisualiza
   }, [resonantDates, seedDate]);
 
   return (
-    <div className="relative w-full aspect-square bg-card/30 rounded-lg border border-primary/20 overflow-hidden">
+    <div className="relative w-full aspect-square bg-card/30 rounded-lg border border-primary/20 overflow-hidden touch-none">
       <canvas
         ref={canvasRef}
         className="w-full h-full"
         style={{ width: '100%', height: '100%' }}
       />
-      <div className="absolute bottom-2 left-2 text-xs text-muted-foreground">
+      <div className="absolute bottom-2 left-2 text-[10px] md:text-xs text-muted-foreground">
         Fractal Time Spiral
       </div>
     </div>

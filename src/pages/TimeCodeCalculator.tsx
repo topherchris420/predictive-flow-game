@@ -86,66 +86,66 @@ export default function TimeCodeCalculator() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border/20 backdrop-blur-sm bg-background/50 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-2 md:px-4 py-3 md:py-4 flex items-center justify-between">
           <Link to="/">
-            <Button variant="ghost" size="sm" className="gap-2">
+            <Button variant="ghost" size="sm" className="gap-1 md:gap-2 px-2 md:px-4">
               <ArrowLeft className="w-4 h-4" />
-              Back to Game
+              <span className="hidden sm:inline">Back to Game</span>
             </Button>
           </Link>
-          <div className="text-center">
-            <h1 className="text-xl md:text-2xl font-light tracking-wider text-primary glow-cyan">
+          <div className="text-center flex-1 px-2">
+            <h1 className="text-sm md:text-xl lg:text-2xl font-light tracking-wider text-primary glow-cyan">
               TIME CODE CALCULATOR
             </h1>
-            <p className="text-xs text-muted-foreground">Explore Cyclical Time Patterns</p>
+            <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">Explore Cyclical Time Patterns</p>
           </div>
-          <div className="w-24" /> {/* Spacer for centering */}
+          <div className="w-16 md:w-24" /> {/* Spacer for centering */}
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8 max-w-7xl">
         {/* Input Section */}
-        <Card className="p-6 md:p-8 mb-8 bg-card/50 backdrop-blur-sm border-primary/20">
-          <div className="space-y-6">
+        <Card className="p-4 md:p-6 lg:p-8 mb-4 md:mb-8 bg-card/50 backdrop-blur-sm border-primary/20">
+          <div className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2 text-primary">
+              <label className="block text-xs md:text-sm font-medium mb-2 text-primary">
                 Seed Event Date
               </label>
               <Input
                 type="date"
                 value={seedDate}
                 onChange={(e) => setSeedDate(e.target.value)}
-                className="bg-background/50 border-primary/30"
+                className="bg-background/50 border-primary/30 text-sm md:text-base h-12 md:h-10"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                 Enter a significant date (birthday, historical event, etc.)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-primary">
+              <label className="block text-xs md:text-sm font-medium mb-2 text-primary">
                 Cycle Type
               </label>
               <Select value={cycleType} onValueChange={setCycleType}>
-                <SelectTrigger className="bg-background/50 border-primary/30">
+                <SelectTrigger className="bg-background/50 border-primary/30 h-12 md:h-10 text-sm md:text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(cycleTypes).map(([key, cycle]) => (
-                    <SelectItem key={key} value={key}>
+                    <SelectItem key={key} value={key} className="text-sm md:text-base">
                       {cycle.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1">
                 Choose a fractal time interval for resonance calculations
               </p>
             </div>
 
             <Button 
               onClick={calculateResonantDates}
-              className="w-full bg-primary hover:bg-primary/90 glow-cyan"
+              className="w-full bg-primary hover:bg-primary/90 glow-cyan h-12 md:h-10 text-sm md:text-base"
               disabled={!seedDate}
             >
               Calculate Resonant Dates
@@ -155,21 +155,21 @@ export default function TimeCodeCalculator() {
 
         {/* Results Section */}
         {showResults && (
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-8">
             {/* Visualization */}
-            <div>
-              <h2 className="text-lg font-light mb-4 text-primary">Temporal Spiral</h2>
+            <div className="order-2 md:order-1">
+              <h2 className="text-sm md:text-lg font-light mb-3 md:mb-4 text-primary">Temporal Spiral</h2>
               <SpiralVisualization resonantDates={resonantDates} seedDate={new Date(seedDate)} />
             </div>
 
             {/* Dates List */}
-            <div>
-              <h2 className="text-lg font-light mb-4 text-primary">Resonant Points</h2>
-              <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+            <div className="order-1 md:order-2">
+              <h2 className="text-sm md:text-lg font-light mb-3 md:mb-4 text-primary">Resonant Points</h2>
+              <div className="space-y-2 md:space-y-3 max-h-[400px] md:max-h-[500px] overflow-y-auto pr-1 md:pr-2">
                 {resonantDates.map((rd, idx) => (
                   <Card 
                     key={idx}
-                    className={`p-4 ${
+                    className={`p-3 md:p-4 ${
                       rd.cycleNumber === 0 
                         ? 'border-primary bg-primary/10 glow-cyan' 
                         : rd.isPast 
@@ -177,16 +177,16 @@ export default function TimeCodeCalculator() {
                         : 'border-primary/50 bg-card/50'
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="text-sm font-medium text-foreground">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs md:text-sm font-medium text-foreground truncate">
                           {format(rd.date, 'MMMM dd, yyyy')}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-[10px] md:text-xs text-muted-foreground mt-1">
                           {rd.cycleLength}
                         </div>
                       </div>
-                      <div className={`text-xs px-2 py-1 rounded ${
+                      <div className={`text-[10px] md:text-xs px-2 py-1 rounded whitespace-nowrap ${
                         rd.cycleNumber === 0 
                           ? 'bg-primary text-primary-foreground' 
                           : rd.isPast 
@@ -205,14 +205,14 @@ export default function TimeCodeCalculator() {
 
         {/* Meaning Panel */}
         {showResults && (
-          <div className="mt-8">
+          <div className="mt-4 md:mt-8">
             <MeaningPanel cycleType={cycleTypes[cycleType as keyof typeof cycleTypes].name} />
           </div>
         )}
       </div>
 
       {/* Footer Branding */}
-      <footer className="mt-16 pb-8 text-center">
+      <footer className="mt-8 md:mt-16 pb-6 md:pb-8 text-center">
         <div className="text-xs text-muted-foreground tracking-wider">VERS3DYNAMICS</div>
         <div className="text-[10px] text-muted-foreground/50">TEMPORAL RESONANCE MAPPING</div>
       </footer>

@@ -65,36 +65,36 @@ export function MeaningPanel({ cycleType }: MeaningPanelProps) {
   const meanings = cycleExplanations[cycleType] || cycleExplanations['1 Year Cycle'];
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
-      <h2 className="text-lg font-light mb-4 text-primary">Cycle Interpretation</h2>
+    <Card className="p-4 md:p-6 bg-card/50 backdrop-blur-sm border-primary/20">
+      <h2 className="text-sm md:text-lg font-light mb-3 md:mb-4 text-primary">Cycle Interpretation</h2>
       
       <Tabs defaultValue="computation" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-background/50">
-          <TabsTrigger value="computation" className="text-xs">Computation</TabsTrigger>
-          <TabsTrigger value="opportunity" className="text-xs">Opportunity</TabsTrigger>
-          <TabsTrigger value="reflection" className="text-xs">Reflection</TabsTrigger>
-          <TabsTrigger value="transformation" className="text-xs">Transformation</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-background/50 h-auto">
+          <TabsTrigger value="computation" className="text-[10px] md:text-xs py-2">Computation</TabsTrigger>
+          <TabsTrigger value="opportunity" className="text-[10px] md:text-xs py-2">Opportunity</TabsTrigger>
+          <TabsTrigger value="reflection" className="text-[10px] md:text-xs py-2">Reflection</TabsTrigger>
+          <TabsTrigger value="transformation" className="text-[10px] md:text-xs py-2">Transform</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="computation" className="mt-4 text-sm text-muted-foreground">
+        <TabsContent value="computation" className="mt-3 md:mt-4 text-xs md:text-sm text-muted-foreground">
           <p className="leading-relaxed">{meanings.computation}</p>
         </TabsContent>
 
-        <TabsContent value="opportunity" className="mt-4 text-sm text-muted-foreground">
+        <TabsContent value="opportunity" className="mt-3 md:mt-4 text-xs md:text-sm text-muted-foreground">
           <p className="leading-relaxed">{meanings.opportunity}</p>
         </TabsContent>
 
-        <TabsContent value="reflection" className="mt-4 text-sm text-muted-foreground">
+        <TabsContent value="reflection" className="mt-3 md:mt-4 text-xs md:text-sm text-muted-foreground">
           <p className="leading-relaxed">{meanings.reflection}</p>
         </TabsContent>
 
-        <TabsContent value="transformation" className="mt-4 text-sm text-muted-foreground">
+        <TabsContent value="transformation" className="mt-3 md:mt-4 text-xs md:text-sm text-muted-foreground">
           <p className="leading-relaxed">{meanings.transformation}</p>
         </TabsContent>
       </Tabs>
 
-      <div className="mt-6 p-4 bg-primary/5 rounded-md border border-primary/20">
-        <p className="text-xs text-muted-foreground italic">
+      <div className="mt-4 md:mt-6 p-3 md:p-4 bg-primary/5 rounded-md border border-primary/20">
+        <p className="text-[10px] md:text-xs text-muted-foreground italic leading-relaxed">
           <strong className="text-primary">Note:</strong> These interpretations are offered as contemplative frameworks, 
           not predictions. Cyclical time patterns invite reflection on recurring themes and rhythms in experience, 
           helping to recognize meaningful patterns without deterministic claims.
