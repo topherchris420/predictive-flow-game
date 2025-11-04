@@ -507,13 +507,13 @@ export const GameCanvas = () => {
       
       {/* Instructions */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-4">
-          <div className="backdrop-blur-md bg-card/70 border border-primary rounded-xl p-4 md:p-8 max-w-md w-full glow-cyan pointer-events-auto">
-            <h2 className="text-xl md:text-2xl font-bold text-primary mb-3 md:mb-4">PREDICTIVE</h2>
-            <p className="text-sm md:text-base text-foreground/80 mb-3 md:mb-4">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none p-3 md:p-4">
+          <div className="backdrop-blur-md bg-card/90 border border-primary rounded-xl p-4 md:p-8 max-w-md w-full glow-cyan pointer-events-auto shadow-2xl">
+            <h2 className="text-lg md:text-2xl font-bold text-primary mb-3 md:mb-4">PREDICTIVE</h2>
+            <p className="text-xs md:text-base text-foreground/80 mb-3 md:mb-4 leading-relaxed">
               Anticipate the pulse before it arrives at the center. Don't react — predict.
             </p>
-            <div className="space-y-2 md:space-y-3 mb-4 md:mb-6 text-xs md:text-sm text-muted-foreground">
+            <div className="space-y-2 md:space-y-3 mb-3 md:mb-6 text-xs md:text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
                 <span>Tap, press SPACE, or use voice</span>
@@ -527,11 +527,11 @@ export const GameCanvas = () => {
                 <span>Reach flow state through synchronization</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-3 md:mb-4 italic">
+            <p className="text-[10px] md:text-xs text-muted-foreground mb-3 md:mb-4 italic leading-relaxed">
               Wrong timing creates feedback echoes that shift the pattern
             </p>
-            <div className="mt-4 md:mt-6 text-center">
-              <span className="text-sm md:text-base text-accent animate-pulse-glow">Tap anywhere to begin</span>
+            <div className="mt-3 md:mt-6 text-center">
+              <span className="text-sm md:text-base text-accent animate-pulse-glow font-medium">Tap anywhere to begin</span>
             </div>
           </div>
         </div>
